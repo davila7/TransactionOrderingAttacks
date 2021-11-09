@@ -1,30 +1,35 @@
-pragma solidity ^0.4.18;
-
-contract TransactionOrder{
-    uint256 price;
-    address owner;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.5.10 ;
+ 
+ contract TransactionOrderingAttacks{
+     
+    uint256 public cantidad;
+    uint256 public precio;
+    address public owner;
+   
+    event BuyEvento(address buyer, uint256 _precio, uint256 _cantidad);
+    event PriceChangeEvento(address _owner, uint256 _precio);
     
-    event Purchase(address _buyer, uint256 _price);
-    event PriceChange(address _owner, uint256 _price);
-    
-    modifier ownerOnly() {
+    modifier onlyOwner(){
         require(msg.sender == owner);
         _;
     }
-
-    function TransactionOrdering() {
-        // constructor
+    
+    constructor () public{
         owner = msg.sender;
-        price = 100;
+        
+        //iniciamos en precio en 1 ether
+        precio = 1;
     }
-
-    function buy() returns (uint256) {
-        Purchase(msg.sender, price);
-        return price;
+    
+    function buy() payable public returns(uint256){
+        cantidad = msg.value/precio;
+        emit BuyEvento(msg.sender,precio, cantidad);
+        return precio;
     }
-
-    function setPrice(uint256 _price) ownerOnly() {
-        price = _price;
-        PriceChange(owner, price);
+    
+    function setPrice(uint256 _precio) public onlyOwner{
+        precio = _precio;
+        emit PriceChangeEvento(owner, precio);
     }
 }
